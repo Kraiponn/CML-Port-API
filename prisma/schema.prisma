@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+     provider = "prisma-client-js"
+}
+
+datasource db {
+     provider = "postgresql"
+     url      = env("DATABASE_URL")
+}
+
+model User {
+     id                 String   @id @db.VarChar(60)
+     first_name         String?  @db.VarChar(50)
+     last_name          String?  @db.VarChar(50)
+     email              String   @unique @db.VarChar(100)
+     hash_password      String
+     hash_refresh_token String?
+     profile            Profile?
+     roles              Role[]   @relation("roles_uses")
+
+     @@index([email])
+     @@map("users")
+}
+
+model Profile {
+     id             String         @id @db.VarChar(60)
+     date_of_birth  DateTime?
+     sex            String         @default("male") @db.VarChar(8)
+     address        String?        @db.VarChar(450)
+     user_id        String         @unique @db.VarChar(60)
+     user           User           @relation(fields: [user_id], references: [id])
+     profile_images ProfileImage[]
+
+     @@map("profiles")
+}
+
+model ProfileImage {
+     id         String  @id @db.VarChar(60)
+     path       String
+     profile_id String  @db.VarChar(60)
+     profile    Profile @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+
+     @@map("profile_images")
+}
+
+model Role {
+     id    String   @id @db.VarChar(60)
+     title RoleType @default(GUEST)
+     users User[]   @relation("roles_uses")
+
+     @@map("roles")
+}
+
+enum RoleType {
+     GUEST
+     CUSTOMER
+     EMPLOYEE
+     MANAGER
+     ADMIN
+}
