@@ -17,7 +17,7 @@ export class JwtAccessStrategy extends PassportStrategy(
   }
 
   async validate(payload: IPayload): Promise<IPayload> {
-    console.log('On validate access token: ', payload);
+    //     console.log('On validate access token: ', payload);
     return payload;
   }
 }

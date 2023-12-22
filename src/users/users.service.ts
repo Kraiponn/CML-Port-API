@@ -9,13 +9,12 @@ export class UsersService {
   /********************************************
    * 	Find many users and filters
    */
-  async findAll(params: {
+  async findManyAsync(params: {
     skip?: number;
     take: number;
     where?: Prisma.UserWhereInput;
     orderBy?: Prisma.UserOrderByWithRelationInput;
-    //     include?: Prisma.UserInclude;
-  }): Promise<any | undefined> {
+  }): Promise<any> {
     const { skip, take, where, orderBy } = params;
 
     return this.dbService.user.findMany({
@@ -23,9 +22,13 @@ export class UsersService {
       take,
       where,
       orderBy,
-      include: {
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        email: true,
         roles: true,
-        profile: true,
+        profile_images: true,
       },
     });
   }
@@ -33,15 +36,11 @@ export class UsersService {
   /********************************************
    * 	Find a user and filter  : Promise<IUserWithRelate>
    */
-  async findUser(where?: Prisma.UserWhereUniqueInput) {
+  async findOneAsync(where?: Prisma.UserWhereUniqueInput) {
     return this.dbService.user.findUnique({
       where,
       include: {
-        profile: {
-          include: {
-            profile_images: true,
-          },
-        },
+        profile_images: true,
         roles: true,
       },
     });
@@ -50,20 +49,26 @@ export class UsersService {
   /********************************************
    * 	Find total of users and filters the results
    */
-  async findTotal(param: { where?: Prisma.UserWhereInput }): Promise<number> {
-    const { where } = param;
+  async findTotalAsync(where?: Prisma.UserWhereInput): Promise<number> {
     return this.dbService.user.count({ where });
   }
 
   /********************************************
-   * 	Find a user and filter
+   * 	Edit user with user id
    */
-  async editUser(params: {
-    where?: Prisma.UserWhereUniqueInput;
-    data?: Prisma.UserUpdateInput;
-  }) {
-    const { where, data } = params;
-
+  async editAsync(
+    where?: Prisma.UserWhereUniqueInput,
+    data?: Prisma.UserUpdateInput,
+  ) {
     return this.dbService.user.update({ where, data });
+  }
+
+  /********************************************
+   * 	Remove user with using user id
+   */
+  async deleteAsync(where: Prisma.UserWhereUniqueInput): Promise<any> {
+    return this.dbService.user.delete({
+      where,
+    });
   }
 }

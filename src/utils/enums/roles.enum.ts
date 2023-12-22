@@ -1,0 +1,8 @@
+export enum RoleTypes {
+  ADMIN = 'ADMIN',
+  MANAGER = 'MANAGER',
+  EMPLOYEE = 'EMPLOYEE',
+  CUSTOMER = 'CUSTOMER',
+  MEMBER = 'MEMBER',
+  GUEST = 'GUEST',
+}

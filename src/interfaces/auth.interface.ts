@@ -1,7 +1,9 @@
+import { RoleTypes } from 'src/utils';
+
 export interface IPayload {
   sub: string;
   email: string;
-  roles: string[];
+  roles: RoleTypes[];
 }
 
 export interface ITokens {

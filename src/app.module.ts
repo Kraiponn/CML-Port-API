@@ -3,8 +3,11 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from 'src/app.controller';
 import { AppService } from 'src/app.service';
 import { DatabaseModule } from 'src/database/database.module';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
+import { AuthModule } from 'src/auth/auth.module';
+import { UsersModule } from 'src/users/users.module';
+import { AdminModule } from 'src/admin/admin.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAccessGuard } from 'src/auth/guards';
 
 @Module({
   imports: [
@@ -12,8 +15,15 @@ import { UsersModule } from './users/users.module';
     DatabaseModule,
     AuthModule,
     UsersModule,
+    AdminModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAccessGuard,
+    },
+  ],
 })
 export class AppModule {}

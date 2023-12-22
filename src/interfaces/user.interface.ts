@@ -1,30 +1,13 @@
-import { Profile, ProfileImage, Role, User } from '@prisma/client';
+import { ProfileImage, Role, User } from '@prisma/client';
 
-type CaseSensitiveType = 'default' | 'insensitive';
-
-export type IProfileWithRelate = Profile & ProfileImage[];
-
-export interface IUserWithRelate {
-  user: User;
-  roles: Role[];
-  profiles: IProfileWithRelate;
-}
+export type IProfileImages = { profile_images: ProfileImage[] };
+export type IRole = { roles: Role[] };
+export type IUserWithRoles = User & IRole;
+export type IUserWithRelate = User & IProfileImages & IRole;
 
 export interface IUserWithPaginate {
   total: number;
   pageNo: number;
   pageSize: number;
   users: User[];
-}
-
-export interface IFilterWithMode {
-  startsWith: string;
-  mode: CaseSensitiveType;
-}
-
-export interface IUserFilter {
-  id: IFilterWithMode;
-  first_name: IFilterWithMode;
-  last_name: IFilterWithMode;
-  email: IFilterWithMode;
 }
