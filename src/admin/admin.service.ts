@@ -26,7 +26,7 @@ export class AdminService {
         id: userId,
       },
       data: {
-        hash_refresh_token: rtHash,
+        refresh_token: rtHash,
       },
     });
   }

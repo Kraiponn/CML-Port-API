@@ -35,7 +35,7 @@ export class AuthService {
       throw new ConflictException('This an email or account already exists.');
 
     dto.id = this.adminService.getRandomPK('uid');
-    dto.hash_password = await this.adminService.hashedData(dto.hash_password);
+    dto.password = await this.adminService.hashedData(dto.password);
 
     return await this.dbService.user.create({
       data: {
@@ -68,7 +68,7 @@ export class AuthService {
 
     const pwdMatched = await this.adminService.comparedData(
       dto.password,
-      existUser.hash_password,
+      existUser.password,
     );
 
     if (!pwdMatched) throw new BadRequestException(`Password does not match`);
@@ -83,7 +83,7 @@ export class AuthService {
     const { access_token, refresh_token } =
       await this.adminService.getTokens(payload);
 
-    // Update hash_refresh_token field on user table
+    // Update refresh_token field on user table
     await this.adminService.updateRefreshToken(existUser.id, refresh_token);
 
     return {
@@ -99,10 +99,10 @@ export class AuthService {
     return this.dbService.user.update({
       where: {
         id: userId,
-        hash_refresh_token: { not: null },
+        refresh_token: { not: null },
       },
       data: {
-        hash_refresh_token: null,
+        refresh_token: null,
       },
     });
   }
@@ -116,12 +116,12 @@ export class AuthService {
   ): Promise<ITokens> {
     const existUser = await this.userService.findOneAsync({ id: userId });
 
-    if (!existUser || !existUser.hash_refresh_token)
+    if (!existUser || !existUser.refresh_token)
       throw new ForbiddenException('Access denied');
 
     const refreshTokenMatches = await this.adminService.comparedData(
       refreshToken,
-      existUser.hash_refresh_token,
+      existUser.refresh_token,
     );
 
     if (!refreshTokenMatches) throw new ForbiddenException('Access denied 2');
@@ -136,7 +136,7 @@ export class AuthService {
     const { access_token, refresh_token } =
       await this.adminService.getTokens(payload);
 
-    // Update hash_refresh_token field on user table
+    // Update refresh_token field on user table
     await this.adminService.updateRefreshToken(existUser.id, refresh_token);
 
     return {

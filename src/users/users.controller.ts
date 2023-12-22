@@ -43,6 +43,9 @@ export class UsersController {
     @Query('first_name') first_name?: string,
     @Query('last_name') last_name?: string,
     @Query('email') email?: string,
+    @Query('address') address?: string,
+    @Query('sex') sex?: string,
+    @Query('date_of_birth') date_of_birth?: Date,
     @Query('sortBy') sortBy: string = 'id',
     @Query('sortType') sortType: 'asc' | 'desc' = 'desc',
     @Query('pageNo', ParseIntPipe) pageNo: number = 1,
@@ -77,6 +80,21 @@ export class UsersController {
             startsWith: email,
             mode: 'insensitive',
           },
+        },
+        {
+          address: {
+            startsWith: address,
+            mode: 'insensitive',
+          },
+        },
+        {
+          sex: {
+            startsWith: sex,
+            mode: 'insensitive',
+          },
+        },
+        {
+          date_of_birth: new Date(date_of_birth),
         },
       ],
     };
@@ -140,6 +158,7 @@ export class UsersController {
       last_name: dto.last_name ? dto.last_name : user.last_name,
       sex: dto.sex ? dto.sex : user.sex,
       address: dto.address ? dto.address : user.address,
+      phone_no: dto.phone_no ? dto.phone_no : user.phone_no,
       date_of_birth: dto.date_of_birth
         ? new Date(dto.date_of_birth)
         : user.date_of_birth,
@@ -173,7 +192,7 @@ export class UsersController {
     // Compared input password with the password(hash_password) on database
     const pwdMatches = await this.adminService.comparedData(
       dto.current_password,
-      user.hash_password,
+      user.password,
     );
 
     if (!pwdMatches)
@@ -182,7 +201,7 @@ export class UsersController {
       );
 
     const fieldToUpdate: Prisma.UserUpdateInput = {
-      hash_password: await this.adminService.hashedData(dto.new_password),
+      password: await this.adminService.hashedData(dto.new_password),
     };
 
     // Update new password
@@ -244,12 +263,23 @@ export class UsersController {
 
   /*****************************************************************************************
    * @desc	Remove an user. And it must be the owner.
-   * @route	POST, api/users/remove
+   * @route	POST, api/users/:userId/remove
    * @access	Private - Owner only
    */
   @HttpCode(HttpStatus.OK)
-  @Post('remove')
-  async removeUser(@GetUserId() userId: string): Promise<any> {
+  @Post(':userId/remove')
+  async removeUser(
+    @Param('userId') userId: string,
+    @GetUserId() id: string,
+  ): Promise<any> {
+    if (userId !== id)
+      throw new BadRequestException(
+        `The specific user id does not matches with id from token`,
+      );
+
+    if (!(await this.userService.findOneAsync({ id })))
+      throw new NotFoundException(`There is no user with id of ${userId}`);
+
     return await this.userService.deleteAsync({ id: userId });
   }
 }

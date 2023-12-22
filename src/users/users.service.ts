@@ -27,6 +27,9 @@ export class UsersService {
         first_name: true,
         last_name: true,
         email: true,
+        address: true,
+        sex: true,
+        date_of_birth: true,
         roles: true,
         profile_images: true,
       },
@@ -60,7 +63,13 @@ export class UsersService {
     where?: Prisma.UserWhereUniqueInput,
     data?: Prisma.UserUpdateInput,
   ) {
-    return this.dbService.user.update({ where, data });
+    return this.dbService.user.update({
+      where,
+      data,
+      include: {
+        roles: true,
+      },
+    });
   }
 
   /********************************************
