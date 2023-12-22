@@ -94,7 +94,7 @@ export class UsersController {
           },
         },
         {
-          date_of_birth: new Date(date_of_birth),
+          date_of_birth: date_of_birth,
         },
       ],
     };

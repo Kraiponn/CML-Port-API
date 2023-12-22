@@ -9,8 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
-import { Prisma, User } from '@prisma/client';
-import { LoginDto } from 'src/dtos/user';
+import { User } from '@prisma/client';
+import { LoginDto, RegisterDto } from 'src/dtos/user';
 import { ITokens, IUserWithRoles } from 'src/interfaces';
 import { GetTokenPayload, GetUserId, Public } from 'src/auth/decorators';
 import { JwtAccessGuard } from 'src/auth/guards';
@@ -28,9 +28,7 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
-  async register(
-    @Body() body: Prisma.UserCreateInput,
-  ): Promise<IUserWithRoles> {
+  async register(@Body() body: RegisterDto): Promise<IUserWithRoles> {
     const result = await this.authService.signup(body);
 
     if (!result) throw new BadRequestException();

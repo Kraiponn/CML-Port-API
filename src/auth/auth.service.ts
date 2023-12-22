@@ -11,7 +11,7 @@ import { AdminService } from 'src/admin/admin.service';
 import { UsersService } from 'src/users/users.service';
 import { RoleTypes } from 'src/utils';
 import { ITokens, IUserWithRoles } from 'src/interfaces';
-import { LoginDto } from 'src/dtos/user';
+import { LoginDto, RegisterDto } from 'src/dtos/user';
 
 @Injectable()
 export class AuthService {
@@ -24,9 +24,7 @@ export class AuthService {
   /**********************************************************************
    * 	Register new account
    */
-  async signup(
-    dto: Prisma.UserCreateInput,
-  ): Promise<IUserWithRoles | undefined> {
+  async signup(dto: RegisterDto): Promise<IUserWithRoles | undefined> {
     const existUser = await this.userService.findOneAsync({
       email: dto.email,
     });
@@ -34,21 +32,25 @@ export class AuthService {
     if (existUser)
       throw new ConflictException('This an email or account already exists.');
 
-    dto.id = this.adminService.getRandomPK('uid');
-    dto.password = await this.adminService.hashedData(dto.password);
+    const pkId = this.adminService.getRandomPK('uid');
+    const hashPassword = await this.adminService.hashedData(dto.password);
+
+    const fieldToCreate: Prisma.UserCreateInput = {
+      id: pkId,
+      email: dto.email,
+      password: hashPassword,
+      roles: {
+        create: [
+          {
+            id: this.adminService.getRandomPK('rid'),
+            title: RoleTypes.MEMBER,
+          },
+        ],
+      },
+    };
 
     return await this.dbService.user.create({
-      data: {
-        ...dto,
-        roles: {
-          create: [
-            {
-              id: this.adminService.getRandomPK('rid'),
-              title: RoleTypes.MEMBER,
-            },
-          ],
-        },
-      },
+      data: fieldToCreate,
       include: {
         roles: true,
       },
