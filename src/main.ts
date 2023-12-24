@@ -13,7 +13,7 @@ async function bootstrap() {
   app.enableCors({});
   //   app.use(csurf());
 
-  await app.listen(process.env.DEFAULT_PORT || 80);
+  await app.listen(process.env.PORT || 80);
 }
 
 bootstrap();

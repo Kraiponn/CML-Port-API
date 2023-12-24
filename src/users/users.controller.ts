@@ -7,7 +7,6 @@ import {
   HttpStatus,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -54,14 +53,14 @@ export class UsersController {
     @Query('id') id?: string,
     @Query('first_name') first_name?: string,
     @Query('last_name') last_name?: string,
-    @Query('email') email?: string,
     @Query('address') address?: string,
     @Query('sex') sex?: string,
     @Query('date_of_birth') date_of_birth?: Date,
+    @Query('email') email: string = '',
+    @Query('pageNo') pageNo: number = 1,
+    @Query('pageSize') pageSize: number = 10,
     @Query('sortBy') sortBy: string = 'id',
     @Query('sortType') sortType: 'asc' | 'desc' = 'desc',
-    @Query('pageNo', ParseIntPipe) pageNo: number = 1,
-    @Query('pageSize', ParseIntPipe) pageSize: number = 10,
   ): Promise<IUserWithPaginate> {
     const orderBy: Prisma.UserOrderByWithRelationInput = {
       [sortBy]: sortType,
@@ -111,9 +110,11 @@ export class UsersController {
       ],
     };
 
+    const page_no = Number(pageNo);
+    const page_size = Number(pageSize);
     const users = await this.userService.findManyAsync({
-      skip: (pageNo - 1) * pageSize,
-      take: pageSize,
+      skip: (page_no - 1) * page_size,
+      take: page_size,
       where,
       orderBy,
     });
