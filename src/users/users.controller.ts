@@ -37,6 +37,18 @@ export class UsersController {
    */
   @Public()
   @HttpCode(HttpStatus.OK)
+  @Get('/test')
+  getTest() {
+    return { message: 'Hello World', statusCode: 200 };
+  }
+
+  /*****************************************************************************************
+   * @desc	Get many users
+   * @route	GET, api/users
+   * @access	Public
+   */
+  @Public()
+  @HttpCode(HttpStatus.OK)
   @Get()
   async getUsers(
     @Query('id') id?: string,
